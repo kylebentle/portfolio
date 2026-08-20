@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex, nofollow" />
+  <title>Designer Workload — Capacity Planner</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;600;700&family=JetBrains+Mono:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --nav-height: 83px; }
+    html, body { height: 100%; overflow: hidden; }
+    body { font-family: 'Jost', sans-serif; color: #1A1F36; background: #fff; -webkit-font-smoothing: antialiased; }
+
+    #app { height: 100vh; overflow: hidden; }
+
+    #nav {
+      position: relative;
+      z-index: 100;
+      background: #fff;
+      border-bottom: 1px solid #E2E5EE;
+      box-shadow: 0 2px 12px rgba(0,12,112,0.05);
+      padding: 0 32px;
+    }
+    .nav-inner {
+      max-width: 1800px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 0;
+    }
+
+    #scroll-container {
+      height: calc(100vh - var(--nav-height));
+      overflow: auto;
+    }
+    .content {
+      max-width: 1800px;
+      margin: 0 auto;
+      padding: 24px 32px 60px;
+    }
+
+    /* Sticky week-column header row */
+    .week-headers-sticky {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: #fff;
+      border-bottom: 1px solid #ECEEF4;
+      margin-bottom: 12px;
+    }
+
+    /* Designer card */
+    .designer-card-wrapper { border-radius: 12px; }
+    .designer-card-wrapper.drag-over .designer-card { outline: 2px solid #24A6FF; }
+    .designer-card-wrapper.is-dragging .designer-card { opacity: 0.4; }
+    .designer-card {
+      background: #fff;
+      border: 1px solid #E2E5EE;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,12,112,0.05);
+      overflow: hidden;
+    }
+
+    /* Designer header */
+    .designer-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      cursor: pointer;
+      user-select: none;
+      background: #fff;
+      border-bottom: 1px solid #E2E5EE;
+      transition: background 0.1s;
+    }
+    .designer-header.collapsed { border-bottom: none; }
+    .designer-header:hover { background: #F7F8FC; }
+
+    /* Hover-reveal elements inside designer header */
+    .grip-icon  { opacity: 0.10; transition: opacity 0.15s; cursor: grab; color: #9CA3BF; line-height: 0; }
+    .hover-reveal { opacity: 0.10; transition: opacity 0.15s; }
+    .designer-header:hover .grip-icon  { opacity: 0.45; }
+    .designer-header:hover .hover-reveal { opacity: 0.60; }
+
+    /* Project row */
+    .project-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 12px;
+      min-height: 44px;
+      border-bottom: 1px solid #ECEEF4;
+      background: transparent;
+      transition: background 0.1s;
+    }
+    .project-row:hover { background: #F7F8FC; }
+    .project-row .trash-btn { opacity: 0.15; transition: opacity 0.15s; }
+    .project-row:hover .trash-btn { opacity: 0.60; }
+
+    /* Hour cell */
+    .hour-cell {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 36px;
+      border-radius: 6px;
+      cursor: text;
+      transition: background 0.12s;
+      border: 1px solid transparent;
+    }
+    .hour-cell:hover { border-color: #E2E5EE; }
+    .hour-cell.editing { border-color: #24A6FF !important; }
+    .cap-cell:hover:not(.editing) { background: #F0F2F8; }
+
+    /* Inputs */
+    .inline-text-input {
+      font-family: inherit;
+      font-size: inherit;
+      font-weight: inherit;
+      color: inherit;
+      background: #E5F5FF;
+      border: 1.5px solid #24A6FF;
+      border-radius: 6px;
+      padding: 2px 6px;
+      outline: none;
+      width: 100%;
+    }
+    .hour-input {
+      width: 48px;
+      text-align: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      background: transparent;
+      border: none;
+      outline: none;
+    }
+
+    /* Add designer */
+    #add-designer-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 14px 20px;
+      cursor: pointer;
+      background: transparent;
+      border: 2px dashed #E2E5EE;
+      border-radius: 12px;
+      color: #6B7394;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: 'Jost', sans-serif;
+      transition: border-color 0.15s, color 0.15s;
+    }
+    #add-designer-btn:hover { border-color: #24A6FF; color: #0055BD; }
+
+    .add-designer-input {
+      flex: 1;
+      font-family: 'Jost', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: #1A1F36;
+      background: #fff;
+      border: 1.5px solid #24A6FF;
+      border-radius: 6px;
+      padding: 6px 10px;
+      outline: none;
+    }
+
+    /* Add project button */
+    .add-proj-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 12px;
+      font-weight: 500;
+      color: #0055BD;
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 4px 2px;
+      font-family: 'Jost', sans-serif;
+      opacity: 0.8;
+    }
+    .add-proj-btn:hover { opacity: 1; }
+
+    /* Icon buttons */
+    .icon-btn {
+      background: none;
+      border: none;
+      cursor: pointer;
+      padding: 2px;
+      line-height: 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* Openfield logo fill */
+    .st0 { fill: #000C70; }
+
+    /* Export button */
+    .export-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Jost', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      color: #6B7394;
+      background: none;
+      border: 1px solid #E2E5EE;
+      border-radius: 8px;
+      padding: 7px 14px;
+      cursor: pointer;
+      transition: border-color 0.15s, color 0.15s;
+      white-space: nowrap;
+    }
+    .export-btn:hover:not(:disabled) { border-color: #24A6FF; color: #0055BD; }
+    .export-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Modal */
+    #modal-root {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      background: rgba(0,12,112,0.18);
+      backdrop-filter: blur(3px);
+    }
+    #modal-root.active { display: flex; }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <div id="modal-root"></div>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="planner.js"></script>
+</body>
+</html>

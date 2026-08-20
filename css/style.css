@@ -1,0 +1,1088 @@
+/* ============================================================
+   BASE RESET & ROOT
+   ============================================================ */
+
+/* Remove default browser spacing and make sizing predictable */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+/* Root variables — change these to restyle the whole site */
+:root {
+  --color-bg:           #ffffff;
+  --color-text:         #0c0d12;
+  --color-muted:        #364051;
+  --color-faint:        #9a4a28;
+  --color-border:       #bfc0c0;
+  --color-accent:       #2d3142;
+  /* White text for use on dark (--color-text) backgrounds */
+  --color-on-dark:      #ffffff;
+  --color-on-dark-dim:  rgba(255, 255, 255, 0.75);
+  --color-on-dark-faint: rgba(255, 255, 255, 0.6);
+
+  --font-display:    'Bree Serif', serif;
+  --font-base:       'Roboto', system-ui, sans-serif;
+
+  --size-body:       16px;
+  --size-small:      13px;
+
+  --max-width:       720px;
+  --spacing-section: 4rem;
+}
+
+body {
+  font-family: var(--font-base);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  font-size: var(--size-body);
+  line-height: 1.75;
+}
+
+
+/* ============================================================
+   PAGE WRAPPER
+   Centers content and adds horizontal padding
+   ============================================================ */
+
+.page-wrap {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+
+/* ============================================================
+   SKIP LINK
+   Collapsed to a 1×1px invisible point until a keyboard user
+   tabs to it — then expands at the top of the page
+   ============================================================ */
+
+.skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  clip: rect(0 0 0 0);
+  clip-path: inset(50%);
+  height: 1px;
+  width: 1px;
+  overflow: hidden;
+  white-space: nowrap;
+  padding: 0.75rem 1.5rem;
+  background: var(--color-text);
+  color: var(--color-on-dark);
+  font-size: var(--size-small);
+  font-weight: 500;
+  text-decoration: none;
+  z-index: 200;
+}
+
+.skip-link:focus {
+  clip: auto;
+  clip-path: none;
+  height: auto;
+  width: auto;
+  overflow: visible;
+  white-space: normal;
+}
+
+
+/* ============================================================
+   FOCUS STYLES
+   Custom keyboard focus ring for links and buttons.
+   :focus-visible only fires for keyboard navigation, not mouse clicks.
+   ============================================================ */
+
+a:focus-visible,
+button:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+
+/* Homepage nav sits on a dark background — use a light ring instead */
+.page-home .nav a:focus-visible {
+  outline-color: var(--color-on-dark);
+}
+
+
+/* ============================================================
+   NAV  (block: nav)
+   ============================================================ */
+
+.nav {
+  padding: 1.5rem 2rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 0.5px solid var(--color-border);
+}
+
+/* Your name / site logo on the left */
+.nav__brand {
+  font-size: var(--size-body);
+  font-weight: 500;
+  color: var(--color-text);
+  text-decoration: none;
+}
+
+/* The group of navigation links on the right */
+.nav__links {
+  display: flex;
+  gap: 2rem;
+  list-style: none;
+}
+
+/* Individual nav link */
+.nav__link {
+  font-size: var(--size-small);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.nav__link:hover {
+  color: var(--color-text);
+}
+
+/* Modifier: highlights the link for the current page */
+.nav__link--active {
+  color: var(--color-text);
+}
+
+/* On the homepage, nav floats over the hero so it doesn't push the hero down */
+.page-home .nav {
+  position: absolute;   /* lifts it out of the document flow */
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 10;          /* keeps it on top of the hero, which paints over it otherwise */
+  background-color: var(--color-text);
+  border-bottom: none;
+}
+
+/* Nav text needs to be light on the dark homepage hero */
+.page-home .nav__brand,
+.page-home .nav__link--active {
+  color: var(--color-on-dark);
+}
+
+.page-home .nav__link {
+  color: var(--color-on-dark-faint); /* slightly dimmed for inactive links */
+}
+
+.page-home .nav__link:hover {
+  color: var(--color-on-dark);
+}
+
+/* On small screens, stack the nav links below the brand */
+@media (max-width: 480px) {
+  .nav {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+
+  .nav__links {
+    gap: 1.25rem;
+  }
+}
+
+
+/* ============================================================
+   HERO  (block: hero)
+   The intro section at the top of a page
+   ============================================================ */
+
+.hero {
+  padding: var(--spacing-section) 0 2rem;
+}
+
+.hero__title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 400;   /* Bree Serif only has one weight — 400 is correct */
+  line-height: 1.3;
+  margin-bottom: 1rem;
+  color: var(--color-text);
+}
+
+.hero__body {
+  color: var(--color-text);
+}
+
+/* Bold text inside the hero body stays dark for emphasis */
+.hero__body strong {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+
+/* ============================================================
+   HOME HERO  (block: home-hero)
+   Full-viewport hero used only on the homepage
+   ============================================================ */
+
+/* The full-bleed container — fills the screen and centers everything */
+.home-hero {
+  position: relative;          /* lets the scroll hint anchor to this container */
+  min-height: 100vh;
+  min-height: 100svh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--color-text);
+  padding: 4rem 2rem;
+  text-align: center;
+}
+
+/* Scroll hint — pinned to the bottom center of the hero */
+.scroll-hint {
+  position: absolute;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%);  /* centers it horizontally regardless of its width */
+}
+
+/* The circle */
+.scroll-hint__circle {
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid var(--color-faint);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The chevron — drawn with two CSS borders rotated 45 degrees */
+.scroll-hint__chevron {
+  width: 9px;
+  height: 9px;
+  border-right: 1.5px solid var(--color-faint);
+  border-bottom: 1.5px solid var(--color-faint);
+  transform: rotate(45deg) translate(-2px, -2px); /* slight nudge to visually center inside circle */
+}
+
+/* Light text inside the dark homepage hero */
+.home-hero .hero__title {
+  color: var(--color-on-dark);
+}
+
+.home-hero .hero__body {
+  color: var(--color-on-dark-dim);   /* slightly dimmed for the lede text */
+}
+
+.home-hero .hero__body strong {
+  color: var(--color-on-dark);
+}
+
+/* Case study hero uses dark text on a light background */
+.cs-hero-band .hero {
+  text-align: center;
+}
+
+/* Inner wrapper keeps the text from getting too wide on large screens.
+   Also lays the text and photo out side by side on wider screens. */
+.home-hero__inner {
+  max-width: 860px; /* a bit wider than --max-width to leave room for the photo */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 3rem;
+  text-align: left; /* overrides the centered text inherited from .home-hero */
+}
+
+.home-hero__text {
+  max-width: var(--max-width);
+}
+
+.home-hero__photo {
+  width: 200px;
+  height: 200px;
+  border-radius: 50%; /* circle, cropped to fill */
+  object-fit: cover;
+  flex-shrink: 0; /* keeps the photo from getting squeezed by the text */
+}
+
+/* Below 700px there isn't enough room for text + photo side by side —
+   stack the photo under the text and re-center everything */
+@media (max-width: 700px) {
+  .home-hero__inner {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+/* Larger title inside the home hero only — doesn't affect other pages */
+.home-hero .hero__title {
+  font-size: 60px;
+  line-height: 1.1;
+  margin-bottom: 1.25rem;
+}
+
+@media (max-width: 480px) {
+  .home-hero .hero__title {
+    font-size: 36px;
+  }
+}
+
+
+/* ============================================================
+   SECTION  (block: section)
+   A content section separated by a top border
+   ============================================================ */
+
+.section {
+  margin-top: var(--spacing-section);
+  /* padding-top: 2rem; */
+  padding-bottom: var(--spacing-section);
+  border-bottom: 0.5px solid var(--color-border);
+}
+
+/* Small all-caps label above a section, e.g. "My Work" */
+.section__label {
+  font-size: 14px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-faint);
+  margin-bottom: 1rem;
+}
+
+.section__body {
+  color: var(--color-text);
+}
+
+.section__body strong {
+  color: var(--color-text);
+  font-weight: 500;
+}
+
+/* Summary paragraph(s) at the top of the resume page */
+.resume-summary {
+  color: var(--color-text);
+  margin-bottom: 0.75rem; /* small gap between summary paragraphs; harmless on the last one */
+}
+
+
+/* ============================================================
+   EMAIL ACTION  (block: email-action)
+   Email address with mailto and copy-to-clipboard icon buttons
+   ============================================================ */
+
+.email-action {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.email-action__address {
+  font-size: var(--size-small);
+  color: var(--color-muted);
+}
+
+/* Shared styles for both the mailto link and the copy button */
+.email-action__btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  color: var(--color-muted);
+  transition: color 0.15s ease;
+  line-height: 1;
+  text-decoration: none;   /* overrides default link underline */
+}
+
+.email-action__btn:hover {
+  color: var(--color-text);
+}
+
+/* Tooltip on the copy button only — targets <button> to avoid applying to the mailto <a> */
+button.email-action__btn {
+  position: relative;
+}
+
+button.email-action__btn::after {
+  content: 'Copy to clipboard';
+  position: absolute;
+  bottom: calc(100% + 6px);  /* sits just above the button */
+  left: 50%;
+  transform: translateX(-50%);  /* centers it over the button regardless of its width */
+  background: var(--color-text);
+  color: var(--color-bg);
+  font-size: 11px;
+  white-space: nowrap;
+  padding: 4px 8px;
+  border-radius: 4px;
+  pointer-events: none;  /* tooltip doesn't interfere with mouse events */
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+
+button.email-action__btn:hover::after {
+  opacity: 1;
+}
+
+
+/* ============================================================
+   CONTACT LINKS
+   Row of inline links (LinkedIn, Email, etc.)
+   ============================================================ */
+
+/* Adds breathing room between the resume link and the Contact Me label */
+.contact-label {
+  margin-top: 2rem;
+}
+
+.contact-links {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.contact-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-size: var(--size-small);
+  color: var(--color-muted);
+  text-decoration: none;
+  transition: color 0.15s ease;
+}
+
+.contact-link:hover {
+  color: var(--color-text);
+}
+
+
+/* ============================================================
+   CTA LINK  (block: cta-link)
+   A standalone text link used as a call-to-action
+   ============================================================ */
+
+.cta-link {
+  display: inline-block;
+  margin-top: 1.25rem;
+  font-size: var(--size-small);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-accent);
+  text-decoration: none;
+  border-bottom: 1px solid var(--color-accent);
+  padding-bottom: 2px;
+  transition: opacity 0.15s ease;
+}
+
+.cta-link:hover {
+  opacity: 0.5;
+}
+
+
+/* ============================================================
+   PAGE FOOTER  (block: footer)
+   ============================================================ */
+
+.footer {
+  margin-top: var(--spacing-section);
+  padding: 2rem 0 3rem;
+  /* border-top: 0.5px solid var(--color-border); */
+}
+
+.footer__text {
+  font-size: var(--size-small);
+  color: var(--color-faint);
+}
+
+
+/* ============================================================
+   RESUME HEADER  (block: resume-header)
+   Name, email, and summary at the top of the resume page
+   ============================================================ */
+
+.resume-header {
+  padding: var(--spacing-section) 0 2rem;
+}
+
+.resume-header__name {
+  font-size: 28px;
+  font-weight: 500;
+  line-height: 1.2;
+  margin-bottom: 0.25rem;
+}
+
+.resume-header__email {
+  font-size: var(--size-small);
+  color: var(--color-muted);
+  text-decoration: none;
+}
+
+.resume-header__email:hover {
+  color: var(--color-text);
+}
+
+.resume-header__summary {
+  margin-top: 1.25rem;
+  color: var(--color-text);
+  font-style: italic;
+}
+
+
+/* ============================================================
+   JOB  (block: job)
+   A single job entry — company, title, dates, bullet points
+   ============================================================ */
+
+.job {
+  margin-bottom: 2rem;
+}
+
+/* Company name */
+.job__company {
+  font-size: 20px;
+  font-weight: 600;
+  margin-bottom: 0.15rem;
+}
+
+/* Job title on its own line */
+.job__title {
+  font-weight: 500;
+  margin-bottom: 0.1rem;
+}
+
+/* Small inline note showing a promotion, e.g. "(promoted from UX Designer)" */
+.job__promotion {
+  font-size: var(--size-small);
+  font-weight: 400;
+  font-style: italic;
+  color: var(--color-faint);
+}
+
+/* Date range, e.g. "January 2022 – present" */
+.job__dates {
+  font-size: var(--size-small);
+  font-style: italic;
+  color: var(--color-muted);
+  margin-bottom: 0.75rem;
+}
+
+/* The list of bullet points */
+.job__bullets {
+  list-style: none;
+  padding: 0;
+}
+
+/* Each bullet — uses a custom circle instead of a default list marker */
+.job__bullet {
+  position: relative;
+  padding-left: 1.25rem;
+  color: var(--color-text);
+  margin-bottom: 0.5rem;
+}
+
+/* The circle bullet character, placed before each item */
+.job__bullet::before {
+  content: "○";
+  position: absolute;
+  left: 0;
+  color: var(--color-faint);
+  font-size: 0.7em;
+  top: 0.3em;
+}
+
+
+/* ============================================================
+   SKILL GROUP  (block: skill-group)
+   A paragraph of skills under a label
+   ============================================================ */
+
+.skill-group {
+  margin-bottom: 1.25rem;
+}
+
+.skill-group__body {
+  color: var(--color-text);
+}
+
+/* Bold lead-in text at the start of a skill paragraph */
+.skill-group__body strong {
+  color: var(--color-text);
+  font-weight: 600;
+}
+
+
+/* ============================================================
+   CASE STUDIES INTRO  (block: case-studies-intro)
+   Heading and framing text at the top of the Work listing page
+   ============================================================ */
+
+.case-studies-intro {
+  padding: var(--spacing-section) 0 0;
+}
+
+.case-studies-intro__title {
+  font-family: var(--font-display);
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.3;
+  margin-bottom: 0.75rem;
+}
+
+.case-studies-intro__body {
+  color: var(--color-text);
+  max-width: 560px;   /* keeps the line length comfortable — long lines are harder to read */
+}
+
+
+/* ============================================================
+   CASE STUDY CARD  (block: case-study-card)
+   Used on the Work listing page — one card per case study
+   ============================================================ */
+
+.case-study-card {
+  margin-top: 3rem;
+  padding-bottom: 3rem;
+  /* padding-top: 2rem; */
+  border-bottom: 0.5px solid var(--color-border);
+  display: flex;          /* image and text sit side by side */
+  gap: 2rem;
+  align-items: flex-start;
+}
+
+/* Thumbnail image inside the card — shows the full image, scales with the column */
+.case-study-card__thumb {
+  width: 100%;
+  height: auto;           /* height follows the image's natural proportions */
+  object-fit: contain;    /* never crops — shows the whole image */
+  display: block;
+  border-radius: 4px;
+}
+
+/* Image column — fixed width so it doesn't shrink or grow */
+.case-study-card__image {
+  flex: 0 0 45%;          /* fixed at 45% width, won't grow or shrink */
+  border-radius: 4px;
+}
+
+/* Text column: label, title, description, and link */
+.case-study-card__body {
+  flex: 1;                /* fills remaining space */
+}
+
+/* Small label above the title, e.g. the client name */
+.case-study-card__label {
+  font-size: var(--size-small);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-faint);
+  margin-bottom: 0.5rem;
+}
+
+.case-study-card__title {
+  font-size: 22px;
+  font-weight: 500;
+  line-height: 1.3;
+  margin-bottom: 0.75rem;
+}
+
+/* Title links: match the heading color and only underline on hover */
+.case-study-card__title a {
+  color: inherit;
+  text-decoration: none;
+}
+
+.case-study-card__title a:hover {
+  text-decoration: underline;
+}
+
+.case-study-card__desc {
+  color: var(--color-text);
+}
+
+/* On mobile, stack image above text */
+@media (max-width: 480px) {
+  .case-study-card {
+    flex-direction: column;
+  }
+
+  .case-study-card__image {
+    flex: none;           /* remove the fixed width so it can go full-width */
+    width: 100%;
+  }
+}
+
+/* Next Case Study teaser at the bottom of a case study page —
+   reuses .case-study-card but it's a single, smaller card, so no divider below it */
+.cs-next .case-study-card {
+  border-bottom: none;
+  padding-bottom: 0;
+  gap: 1.25rem;
+}
+
+/* Smaller thumbnail than the full-size listing-page cards */
+.cs-next .case-study-card__image {
+  flex: 0 0 30%;
+  max-width: 180px;
+}
+
+.cs-next .case-study-card__title {
+  font-size: 18px;
+  margin-bottom: 0.4rem;
+}
+
+.cs-next .case-study-card__label {
+  margin-bottom: 0.3rem;
+  color: var(--color-text); /* darker than the default faint label — reads distinct from the "Next Case Study" eyebrow above it */
+}
+
+@media (max-width: 480px) {
+  .cs-next .case-study-card__image {
+    max-width: 160px;
+    margin: 0 auto;
+  }
+}
+
+/* Small "All work" link that sits above the "Next Case Study" label */
+.cs-next__back-link {
+  display: inline-block;
+  font-size: var(--size-small);
+  color: var(--color-muted);
+  text-decoration: none;
+  margin-bottom: 1.5rem;
+}
+
+.cs-next__back-link:hover {
+  color: var(--color-text);
+}
+
+
+/* ============================================================
+   CASE STUDY PAGE  (block: cs-*)
+   Styles used inside an individual case study page
+   ============================================================ */
+
+/* Process step — text on the left, image on the right */
+.cs-process-step {
+  display: flex;
+  flex-direction: row-reverse;
+  gap: 2rem;
+  align-items: flex-start;
+  margin-top: 1rem;
+}
+
+/* Process figure — holds the image + caption, takes the 40% column */
+.cs-process-figure {
+  flex: 0 0 40%;
+  width: 40%;
+  margin: 0; /* reset browser default figure margin */
+}
+
+/* Process image — fills its figure container */
+.cs-process-img {
+  width: 100%;
+  height: auto;     /* lets each image display at its own natural height */
+  display: block;
+  border-radius: 4px;
+}
+
+/* Text column — fills the remaining space */
+.cs-process-text {
+  flex: 1;
+}
+
+/* On mobile, stack image above text */
+@media (max-width: 480px) {
+  .cs-process-step {
+    flex-direction: column;
+  }
+
+  .cs-process-figure {
+    flex: none;
+    width: 100%;
+  }
+}
+
+/* Hero image — scales to full width at its natural aspect ratio, no cropping */
+.cs-hero-img {
+  width: 100%;
+  height: auto;
+  display: block;   /* removes the small gap browsers add below inline images */
+}
+
+/* Reusable placeholder box for where product images will go */
+.cs-image-placeholder {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background-color: var(--color-border);
+  border-radius: 4px;
+  margin: 1.5rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The hero image at the top of a case study is taller */
+.cs-image-placeholder--hero {
+  aspect-ratio: 2 / 1;
+  margin: 0 0 2rem;
+}
+
+/* Small faint text inside every placeholder box */
+.placeholder-label {
+  font-size: var(--size-small);
+  color: var(--color-faint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+/* Project metadata row: Role, Status, Client */
+.cs-meta {
+  display: flex;
+  flex-wrap: wrap;         /* wraps on small screens */
+  gap: 2rem;
+  padding: 1.5rem 0;
+  border-top: 0.5px solid var(--color-border);
+  border-bottom: 0.5px solid var(--color-border);
+  margin-bottom: 0.5rem;
+}
+
+.cs-meta__item {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+.cs-meta__label {
+  font-size: var(--size-small);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--color-faint);
+}
+
+.cs-meta__value {
+  font-size: var(--size-small);
+  color: var(--color-text);
+}
+
+/* Grid of big impact numbers */
+.cs-stat-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem 2rem;
+  margin-top: 1.5rem;
+}
+
+/* The big number itself */
+.cs-stat__number {
+  font-size: 36px;
+  font-weight: 600;
+  line-height: 1;
+  margin-bottom: 0.4rem;
+}
+
+/* Description below the number */
+.cs-stat__label {
+  font-size: var(--size-small);
+  color: var(--color-muted);
+  line-height: 1.5;
+}
+
+/* Extra space above a section label when it follows body content —
+   applies in multi-project pages (e.g. Achieve) where labels appear mid-section */
+.cs-body + .section__label {
+  margin-top: 3rem;
+}
+
+/* Sub-headings within the Process section */
+.cs-sub-heading {
+  font-family: var(--font-display);
+  font-size: 24px;
+  font-weight: 400;
+  margin-top: 2rem;
+  margin-bottom: 0.25rem;
+  color: var(--color-text);
+}
+
+/* Extra space before a sub-heading when it follows content —
+   targets every step except the first, which follows the section label */
+.cs-body + .cs-sub-heading,
+.cs-image-placeholder + .cs-sub-heading,
+.cs-process-step + .cs-sub-heading {
+  margin-top: 4rem;
+}
+
+/* Two process images side by side, full-width, text below */
+.cs-process-pair__images {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+/* Each figure takes equal space; min-width: 0 prevents overflow in flex */
+.cs-process-pair__images .cs-figure {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+}
+
+@media (max-width: 480px) {
+  .cs-process-pair__images {
+    flex-direction: column;
+  }
+}
+
+/* Figure — wraps a full-width image and its caption */
+.cs-figure {
+  margin: 1.5rem 0;
+}
+
+/* Full-width image inside a figure */
+.cs-figure__img {
+  width: 100%;
+  height: auto;
+  display: block;
+  border-radius: 4px;
+}
+
+/* Caption below a figure image */
+.cs-caption {
+  font-size: var(--size-small);
+  color: var(--color-muted);
+  font-style: italic;
+  margin-top: 0.5rem;
+}
+
+/* Body paragraphs throughout the case study */
+.cs-body {
+  color: var(--color-text);
+  margin-top: 0.75rem;
+}
+
+/* Bullet lists inside case study sections */
+.cs-list {
+  color: var(--color-text);
+  margin-top: 0.5rem;
+  padding-left: 1.25rem;  /* indent the bullets */
+  line-height: 1.7;
+}
+
+/* Hero band at the top of a case study page.
+   Default: light background — title text sits above the full-width hero image. */
+.cs-hero-band {
+  background-color: var(--color-bg);
+  display: flex;
+  flex-direction: column;   /* stacks the title above the image */
+  padding: 0 2rem 2rem;
+}
+
+.cs-hero-band .hero__title {
+  font-size: 46px;
+}
+
+/* Dark variant — for pages without a hero image where visual impact matters more.
+   Matches the homepage hero; text flips to light colors. */
+.cs-hero-band--dark {
+  background-color: var(--color-text);
+  padding: 4rem 2rem;
+}
+.cs-hero-band--dark .hero__title {
+  color: var(--color-on-dark);
+}
+.cs-hero-band--dark .hero__body {
+  color: var(--color-on-dark-dim);
+}
+
+/* Wide wrapper — used for the hero area of a case study page.
+   Spans up to 80% of the screen, wider than the standard content column. */
+.cs-wide-wrap {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 2rem;
+}
+
+@media (max-width: 480px) {
+  .cs-hero-band .hero__title {
+    font-size: 28px;
+  }
+}
+
+/* On case study pages, give sections more breathing room between them */
+.cs-page .section {
+  margin-top: 5rem;    /* ~80px at standard font sizes */
+}
+
+/* Reflection block — visually distinct from the rest of the case study */
+.cs-reflection {
+  margin-top: 5rem;
+  background-color: var(--color-border);
+  border-radius: 8px;
+  padding: 2rem 2rem 2.5rem;
+}
+
+/* On small screens, collapse the stat grid to a single column */
+@media (max-width: 480px) {
+  .cs-stat-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+
+/* ============================================================
+   EDUCATION ENTRY  (block: education-entry)
+   School, location, and degree
+   ============================================================ */
+
+.education-entry__school {
+  font-weight: 600;
+}
+
+.education-entry__location {
+  font-style: italic;
+  color: var(--color-muted);
+}
+
+.education-entry__degree {
+  color: var(--color-text);
+}
+
+
+/* ============================================================
+   PLACEHOLDER THUMBNAIL  (utility: placeholder-thumb)
+   Gray box shown in experiment cards until a real screenshot
+   is added. To swap in a real image: replace the
+   <div class="placeholder-thumb"> with an
+   <img class="case-study-card__thumb" src="..." alt="...">
+   ============================================================ */
+
+.placeholder-thumb {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;     /* matches the proportions of case study thumbnails */
+  background-color: var(--color-border);
+  border-radius: 4px;
+}
+
+
+/* ============================================================
+   ERROR LINKS  (block: error-links)
+   The "Back to Home" / "View my work" links on 404.html
+   ============================================================ */
+
+.error-links {
+  padding: var(--spacing-section) 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  text-align: center;
+}
