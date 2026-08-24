@@ -3,7 +3,6 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="robots" content="noindex, nofollow" />
   <title>Designer Workload — Capacity Planner</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -65,6 +64,10 @@
       overflow: hidden;
     }
 
+    /* Client block (nested inside a designer card, independently drag-reorderable) */
+    .client-block-wrapper.drag-over { outline: 2px solid #24A6FF; outline-offset: -2px; border-radius: 8px; }
+    .client-block-wrapper.is-dragging { opacity: 0.4; }
+
     /* Designer header */
     .designer-header {
       display: flex;
@@ -100,6 +103,10 @@
     .project-row:hover { background: #F7F8FC; }
     .project-row .trash-btn { opacity: 0.15; transition: opacity 0.15s; }
     .project-row:hover .trash-btn { opacity: 0.60; }
+
+    /* By-client rollup row */
+    .rollup-row .trash-btn { opacity: 0.15; transition: opacity 0.15s; }
+    .rollup-row:hover .trash-btn { opacity: 0.60; }
 
     /* Hour cell */
     .hour-cell {

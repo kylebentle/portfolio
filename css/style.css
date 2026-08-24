@@ -489,6 +489,33 @@ button.email-action__btn:hover::after {
 
 
 /* ============================================================
+   SECONDARY BUTTON  (block: btn, modifier: --secondary)
+   An outlined button — more visual weight than a cta-link,
+   but not a solid/filled "primary" button.
+   ============================================================ */
+
+.btn--secondary {
+  display: inline-block;
+  margin-top: 1.25rem;
+  padding: 0.7rem 1.5rem;
+  font-size: var(--size-small);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: var(--color-accent);
+  text-decoration: none;
+  border: 1.5px solid var(--color-accent);
+  border-radius: 4px;
+  transition: background-color 0.15s ease, color 0.15s ease;
+}
+
+.btn--secondary:hover {
+  background-color: var(--color-accent);
+  color: var(--color-on-dark);
+}
+
+
+/* ============================================================
    PAGE FOOTER  (block: footer)
    ============================================================ */
 
