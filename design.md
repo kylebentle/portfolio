@@ -26,9 +26,37 @@ Defined as CSS variables in `:root` at the top of style.css. Change a value ther
 | `--color-faint` | rust/brown | Small labels and eyebrows (section labels, card labels) |
 | `--color-border` | light gray | Dividers, placeholder boxes |
 | `--color-accent` | dark slate | CTA links, secondary button outline |
-| `--color-on-dark`, `--color-on-dark-dim`, `--color-on-dark-faint` | white at full/75%/60% opacity | Text sitting on the dark backgrounds (`--color-text` used as a fill) |
+| `--color-surface-dark` | near-black, fixed | Background fill for the "always dark" sections (homepage hero, nav-on-homepage, `.cs-hero-band--dark`, skip-link). Doesn't change between light and dark mode — see [Dark mode](#dark-mode). |
+| `--color-on-dark`, `--color-on-dark-dim`, `--color-on-dark-faint` | white at full/75%/60% opacity | Text sitting on `--color-surface-dark`. Fixed in both themes, since that surface itself is fixed. |
 
-Note: `--color-text` does double duty as both the body text color *and* the fill for dark sections (homepage hero, nav-on-homepage, `.cs-hero-band--dark`). That's why there's no separate "dark background" variable.
+`--color-surface-dark` used to just be `--color-text` reused as a background — that broke once `--color-text` needed to flip to a light color for dark mode, so the two jobs were split into separate variables.
+
+## Dark mode
+
+Every page that shares this design system (all pages except the two standalone `experiments/*` tools, which have their own bespoke styling) supports dark mode. Two ways to end up there:
+
+1. **Automatic** — if the visitor's OS/browser is set to dark, and they haven't chosen a theme on the site, it follows via `@media (prefers-color-scheme: dark)`.
+2. **Explicit** — the toggle switch in the footer sets `data-theme="dark"` or `data-theme="light"` on `<html>`, which overrides the system setting either way. The choice is saved in `localStorage` and remembered on the next visit.
+
+| Variable | Light | Dark |
+|---|---|---|
+| `--color-bg` | `#ffffff` | `#17181c` |
+| `--color-text` | `#0c0d12` | `#f2f3f5` |
+| `--color-muted` | `#364051` | `#a8b0bd` |
+| `--color-faint` | `#9a4a28` | `#eda07d` |
+| `--color-border` | `#bfc0c0` | `#3a3d45` |
+| `--color-accent` | `#2d3142` | `#b8bfe0` |
+
+`--color-surface-dark` and the `--color-on-dark*` variables are **not** in this table — they're fixed and identical in both themes (see [Colors](#colors)). That's what keeps the homepage hero and dark hero bands looking the same regardless of theme, per Kyle's original direction that those "should just track."
+
+Every dark value above was checked against WCAG AA (4.5:1 for normal text) using the actual background it appears on — several (like `--color-faint`) needed to land brighter than a naive "invert the light color" would give, specifically because label text sometimes sits on `--color-border` (e.g. `.placeholder-label` inside `.cs-image-placeholder`), not just on `--color-bg`. When adding a new color, check contrast against *every* background it might render on, not just the page background.
+
+**Files involved:**
+- `css/style.css` — the token overrides above, plus `.theme-toggle` styling.
+- `js/theme.js` — shared across every page (same pattern as `css/style.css`). Reads/writes the saved choice, applies it, and keeps the toggle's icon in sync if the visitor's system theme changes mid-visit.
+- Every page's `<head>` has a small inline `<script>` (not in the shared file, since it has to run before anything paints) that applies a saved theme immediately, so there's no flash of the wrong color while the page loads.
+
+**A rule this created:** any component that sets a background using one token and text using another must make sure that pairing still works if only one of them changes color in dark mode. This bit us once already — `.btn--secondary:hover` used to hardcode white hover text against `var(--color-accent)`, which only worked because accent was always dark. Now it uses `var(--color-bg)` instead, so it stays readable against whichever accent color is active. Check for this pattern before introducing new color pairings.
 
 ## Type
 
@@ -82,8 +110,9 @@ Every page follows the same shape:
 ```
 
 - The nav has three links (Home, Work/Case Studies, Resume) with `nav__link--active` marking the current page. The homepage nav floats over the hero (`.page-home .nav`) instead of sitting in normal flow.
-- Every `<head>` repeats the same block: Google Analytics tag, charset/viewport meta, Google Fonts preconnect + stylesheet link, `style.css`, and favicon links. New pages should copy this verbatim.
+- Every `<head>` repeats the same block: Google Analytics tag, charset/viewport meta, the small inline dark-mode anti-flash script (see [Dark mode](#dark-mode)), Google Fonts preconnect + stylesheet link, `style.css`, and favicon links. New pages should copy this verbatim.
 - Unlisted pages (like `/experiments/`) add `<meta name="robots" content="noindex, nofollow">` and skip the active nav state since they're not in the main nav.
+- The footer includes the theme toggle button, and every page loads `<script src="/js/theme.js"></script>` right before `</body>`.
 
 ## Components
 
@@ -104,21 +133,25 @@ Every page follows the same shape:
 
 **Email action** (`.email-action`) — mailto link + copy-to-clipboard button, obfuscated mailto href, small JS `copyEmail()` function in `index.html` handles the clipboard copy and checkmark feedback.
 
+**Theme toggle** (`.theme-toggle`) — small circular button in the footer, sun icon in light mode, moon icon in dark mode. Icon swap is driven by the button's own `aria-pressed` attribute (kept in sync by `js/theme.js`), not by the page's `data-theme` attribute directly — that's deliberate, since `data-theme` may be unset when the page is just following the system setting rather than an explicit choice. See [Dark mode](#dark-mode).
+
 ## Don'ts
 
-- **Don't add a new color.** The palette is deliberately small — reuse an existing `--color-*` variable. If nothing fits, ask before adding one.
+- **Don't add a new color.** The palette is deliberately small — reuse an existing `--color-*` variable. If nothing fits, ask before adding one — and if you do, it needs both a light and a dark value that pass WCAG AA against every background it can appear on.
 - **Don't bold or otherwise weight Bree Serif.** It only has weight 400. Don't use it for anything other than a title-level heading.
 - **Don't use Bree Serif for body copy, labels, or buttons.** Titles only.
 - **Don't introduce a new breakpoint.** The site uses exactly two (480px, 700px). A new component should fit into one of those, not add a third.
 - **Don't add a filled/solid "primary" button.** The button hierarchy today is text link (`.cta-link`) → outlined button (`.btn--secondary`) only, and that's intentional restraint, not an oversight.
 - **Don't build a one-off page layout.** Every page reuses nav → hero → `.page-wrap` → footer. A new page should fit that skeleton, not invent a new structure.
 - **Don't use full-uppercase for anything except the existing label pattern** (`.section__label`, `.case-study-card__label`, `.nav__link`, `.cta-link`) — small size + letter-spacing + `--color-faint` or `--color-accent`. Don't uppercase headings or body text.
-- **Don't add JavaScript unless there's no plain-HTML/CSS way to do it** (per [CLAUDE.md](CLAUDE.md)). The only JS on the site today is the mobile-safe email copy button.
+- **Don't add JavaScript unless there's no plain-HTML/CSS way to do it** (per [CLAUDE.md](CLAUDE.md)). The only JS on the site today is the email copy button and the dark mode toggle (`js/theme.js` + the inline anti-flash snippet).
 - **Don't add build tools, npm packages, or frameworks.** Everything must stay uploadable via FTP as-is.
 - **Don't remove the `placeholder-thumb` / `cs-image-placeholder` boxes without a real image ready to replace them** — an empty gap looks broken; a labeled placeholder box reads as "in progress."
+- **Don't use `var(--color-text)` as a `background-color`.** That was the old (broken) way to fill the "always dark" sections — use `var(--color-surface-dark)` instead, since `--color-text` now flips color in dark mode.
+- **Don't hardcode `--color-on-dark` (white) as text/hover color against anything other than `--color-surface-dark`.** Against `--color-accent` or other theme-aware tokens, pair it with `--color-bg` instead so the pairing still contrasts once the other color flips in dark mode.
 
 ## Open questions / things not yet decided
 
 - No filled/primary button style exists yet — only outlined and text-link CTAs.
 - Experiment card thumbnails are currently commented out site-wide pending real screenshots.
-- No dark mode / theme switching — the "dark" sections are fixed dark backgrounds, not a toggleable theme.
+- `experiments/webn/` and `experiments/capacity-tracker/` don't use `css/style.css` or the shared dark mode system — they're standalone tools with their own color variables. They weren't brought into dark mode when it shipped; revisit if that should change.

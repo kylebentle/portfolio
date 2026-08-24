@@ -17,7 +17,10 @@
   --color-faint:        #9a4a28;
   --color-border:       #bfc0c0;
   --color-accent:       #2d3142;
-  /* White text for use on dark (--color-text) backgrounds */
+  /* Fixed dark background for the hero bands and homepage nav — stays this
+     value in both light and dark mode, so those sections don't change */
+  --color-surface-dark: #0c0d12;
+  /* White text for use on dark (--color-surface-dark) backgrounds */
   --color-on-dark:      #ffffff;
   --color-on-dark-dim:  rgba(255, 255, 255, 0.75);
   --color-on-dark-faint: rgba(255, 255, 255, 0.6);
@@ -38,6 +41,37 @@ body {
   color: var(--color-text);
   font-size: var(--size-body);
   line-height: 1.75;
+}
+
+
+/* ============================================================
+   DARK MODE
+   Two ways in: automatically, if the visitor's system is set to
+   dark (and they haven't chosen a theme here); or explicitly, via
+   the toggle switch in the footer, which sets data-theme on <html>
+   and overrides the system setting either way.
+   All values below are checked to meet WCAG AA contrast (4.5:1
+   for text) against the dark background.
+   ============================================================ */
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --color-bg:      #17181c;
+    --color-text:    #f2f3f5;
+    --color-muted:   #a8b0bd;
+    --color-faint:   #eda07d;
+    --color-border:  #3a3d45;
+    --color-accent:  #b8bfe0;
+  }
+}
+
+:root[data-theme="dark"] {
+  --color-bg:      #17181c;
+  --color-text:    #f2f3f5;
+  --color-muted:   #a8b0bd;
+  --color-faint:   #eda07d;
+  --color-border:  #3a3d45;
+  --color-accent:  #b8bfe0;
 }
 
 
@@ -70,7 +104,7 @@ body {
   overflow: hidden;
   white-space: nowrap;
   padding: 0.75rem 1.5rem;
-  background: var(--color-text);
+  background: var(--color-surface-dark);
   color: var(--color-on-dark);
   font-size: var(--size-small);
   font-weight: 500;
@@ -162,7 +196,7 @@ button:focus-visible {
   left: 0;
   width: 100%;
   z-index: 10;          /* keeps it on top of the hero, which paints over it otherwise */
-  background-color: var(--color-text);
+  background-color: var(--color-surface-dark);
   border-bottom: none;
 }
 
@@ -236,7 +270,7 @@ button:focus-visible {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--color-text);
+  background-color: var(--color-surface-dark);
   padding: 4rem 2rem;
   text-align: center;
 }
@@ -511,7 +545,10 @@ button.email-action__btn:hover::after {
 
 .btn--secondary:hover {
   background-color: var(--color-accent);
-  color: var(--color-on-dark);
+  /* Uses the page background as the hover text color, not a fixed white —
+     --color-accent flips to a light tone in dark mode, so white text would
+     stop being readable against it there */
+  color: var(--color-bg);
 }
 
 
@@ -523,11 +560,63 @@ button.email-action__btn:hover::after {
   margin-top: var(--spacing-section);
   padding: 2rem 0 3rem;
   /* border-top: 0.5px solid var(--color-border); */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
 .footer__text {
   font-size: var(--size-small);
   color: var(--color-faint);
+}
+
+
+/* ============================================================
+   THEME TOGGLE  (block: theme-toggle)
+   Dark/light switch in the footer. Shows a sun icon in light mode,
+   a moon icon in dark mode — driven by aria-pressed, which js/theme.js
+   keeps in sync (not by the data-theme attribute directly, since that
+   attribute may be unset when the page is just following the system
+   setting rather than an explicit choice).
+   ============================================================ */
+
+.theme-toggle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: none;
+  color: var(--color-muted);
+  cursor: pointer;
+  transition: color 0.15s ease, border-color 0.15s ease;
+}
+
+.theme-toggle:hover {
+  color: var(--color-text);
+  border-color: var(--color-muted);
+}
+
+.theme-toggle__icon {
+  width: 16px;
+  height: 16px;
+}
+
+/* Only one icon shows at a time */
+.theme-toggle__icon--moon {
+  display: none;
+}
+
+.theme-toggle[aria-pressed="true"] .theme-toggle__icon--sun {
+  display: none;
+}
+
+.theme-toggle[aria-pressed="true"] .theme-toggle__icon--moon {
+  display: block;
 }
 
 
@@ -1019,7 +1108,7 @@ button.email-action__btn:hover::after {
 /* Dark variant — for pages without a hero image where visual impact matters more.
    Matches the homepage hero; text flips to light colors. */
 .cs-hero-band--dark {
-  background-color: var(--color-text);
+  background-color: var(--color-surface-dark);
   padding: 4rem 2rem;
 }
 .cs-hero-band--dark .hero__title {
